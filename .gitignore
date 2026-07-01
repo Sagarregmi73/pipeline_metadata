@@ -53,6 +53,7 @@ data/rejected/*
 .env
 .env.local
 .env.*.local
+!.env.example
 
 # Tests
 .pytest_cache/
@@ -70,4 +71,3 @@ logs/
 # Temporary files
 *.tmp
 *.temp
-.env.example
