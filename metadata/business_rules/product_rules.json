@@ -1,0 +1,33 @@
+{
+  "validations": [
+    {
+      "field": "product_id",
+      "rule": "not_null",
+      "error_message": "product_id cannot be null"
+    },
+    {
+      "field": "qty",
+      "rule": "greater_than_zero",
+      "error_message": "qty must be greater than 0"
+    },
+    {
+      "field": "unit_price",
+      "rule": "greater_than_zero",
+      "error_message": "unit_price must be greater than 0"
+    }
+  ],
+  "transformations": [
+    {
+      "field": "product_name",
+      "operation": "trim_uppercase"
+    },
+    {
+      "field": "created_at",
+      "operation": "set_current_timestamp"
+    }
+  ],
+  "deduplication": {
+    "enabled": true,
+    "key": "product_id"
+  }
+}

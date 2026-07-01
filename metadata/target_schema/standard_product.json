@@ -1,0 +1,12 @@
+{
+  "columns": [
+    {"name": "product_id", "type": "string", "nullable": false},
+    {"name": "product_name", "type": "string", "nullable": false},
+    {"name": "qty", "type": "integer", "nullable": false},
+    {"name": "unit_price", "type": "decimal(10,2)", "nullable": false},
+    {"name": "created_at", "type": "timestamp", "nullable": false},
+    {"name": "updated_at", "type": "timestamp", "nullable": false}
+  ],
+  "primary_key": "product_id",
+  "partition_by": "created_at"
+}
