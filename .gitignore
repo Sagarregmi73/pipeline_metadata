@@ -50,6 +50,7 @@ data/rejected/*
 !data/rejected/.gitkeep
 
 # Environment
+.env
 .env.local
 .env.*.local
 
