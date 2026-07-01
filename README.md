@@ -9,33 +9,21 @@
 
 ## Quick Start
 
-### Option 1: Windows (Batch Script)
-```bash
-start.bat
-# Automatically creates .env and starts services
-```
-
-### Option 2: Linux/Mac (Shell Script)
+### GitHub Codespaces (Browser-based)
 ```bash
 chmod +x start.sh
-./start.sh
-# Automatically creates .env and starts services
+./start.sh          # Automatically creates .env and starts Docker
 ```
 
-### Option 3: Manual Start
+### Windows (Local Machine)
 ```bash
-# The startup script handles this automatically
-# But if you want to do it manually:
+start.bat           # Automatically creates .env and starts Docker
+```
 
-# Copy template to .env
-cp .env.example .env
-
-# Create directories
-mkdir -p airflow/{dags,logs,config}
-mkdir -p data/{incoming,archive,rejected}
-
-# Start all services
-docker-compose up -d
+### Linux/Mac (Local Machine)
+```bash
+chmod +x start.sh
+./start.sh          # Automatically creates .env and starts Docker
 ```
 
 ## Verify Services

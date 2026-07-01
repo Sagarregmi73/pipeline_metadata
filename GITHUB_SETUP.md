@@ -8,12 +8,13 @@
 3. Wait for environment to initialize (~2 minutes)
 
 ### Step 2: Start Services
-In the terminal:
+In the terminal (Codespaces is Linux, so use `start.sh`):
 ```bash
 # Make startup script executable
 chmod +x start.sh
 
 # Start all services
+# This automatically creates .env from .env.example
 ./start.sh
 ```
 

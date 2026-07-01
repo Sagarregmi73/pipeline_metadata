@@ -12,21 +12,21 @@ cd enterprise-data-platform
 
 The startup script automatically creates `.env` from `.env.example`:
 
-**Windows:**
-```bash
-start.bat      # Auto-creates .env, then starts Docker
-```
-
-**Linux/Mac:**
+**GitHub Codespaces (Linux):**
 ```bash
 chmod +x start.sh
 ./start.sh     # Auto-creates .env, then starts Docker
 ```
 
-Your directory will look like:
+**Windows (Local):**
+```bash
+start.bat      # Auto-creates .env, then starts Docker
 ```
-✅ .env.example    (always here - on GitHub)
-✅ .env            (created by startup script - git ignored)
+
+**Linux/Mac (Local):**
+```bash
+chmod +x start.sh
+./start.sh     # Auto-creates .env, then starts Docker
 ```
 
 **Windows:**
