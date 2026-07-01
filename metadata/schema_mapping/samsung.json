@@ -1,0 +1,6 @@
+{
+  "SKU": "product_id",
+  "Model": "product_name",
+  "Stock": "qty",
+  "Rate": "unit_price"
+}

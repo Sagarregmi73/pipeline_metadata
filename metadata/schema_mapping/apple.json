@@ -1,0 +1,6 @@
+{
+  "ItemCode": "product_id",
+  "ItemName": "product_name",
+  "Quantity": "qty",
+  "Price": "unit_price"
+}
