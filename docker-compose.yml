@@ -1,27 +1,32 @@
 version: '3.8'
 
+env_file:
+  - .env
+
 services:
   postgres:
-    image: postgres:15
+    image: postgres:15-alpine
     environment:
-      POSTGRES_USER: airflow
-      POSTGRES_PASSWORD: airflow
-      POSTGRES_DB: airflow
+      POSTGRES_USER: ${POSTGRES_USER:-airflow}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-airflow}
+      POSTGRES_DB: ${POSTGRES_DB:-airflow}
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD", "pg_isready", "-U", "airflow"]
+      test: ["CMD", "pg_isready", "-U", "${POSTGRES_USER:-airflow}"]
       interval: 10s
       timeout: 5s
-      retries: 5
+      retries: 10
+    networks:
+      - data-platform
 
   rabbitmq:
-    image: rabbitmq:3.12-management
+    image: rabbitmq:3.12-management-alpine
     environment:
-      RABBITMQ_DEFAULT_USER: guest
-      RABBITMQ_DEFAULT_PASS: guest
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_DEFAULT_USER:-guest}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS:-guest}
     ports:
       - "5672:5672"
       - "15672:15672"
@@ -29,31 +34,21 @@ services:
       test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
       interval: 10s
       timeout: 5s
-      retries: 5
-
-  airflow-init:
-    image: apache/airflow:2.7.3
-    environment:
-      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql://airflow:airflow@postgres:5432/airflow
-      AIRFLOW__CORE__LOAD_EXAMPLES: 'false'
-    depends_on:
-      postgres:
-        condition: service_healthy
-      rabbitmq:
-        condition: service_healthy
-    command: >
-      bash -c "airflow db init && 
-      airflow users create --username admin --firstname Admin --lastname User --role Admin --email admin@example.com --password admin || true"
+      retries: 10
+    networks:
+      - data-platform
 
   airflow-webserver:
-    image: apache/airflow:2.7.3
+    image: apache/airflow:2.7.3-python3.11
+    user: root
     environment:
       AIRFLOW__CORE__DAGS_FOLDER: /opt/airflow/dags
       AIRFLOW__CORE__EXECUTOR: CeleryExecutor
-      AIRFLOW__CELERY__BROKER_URL: amqp://guest:guest@rabbitmq:5672//
-      AIRFLOW__CELERY__RESULT_BACKEND: db+postgresql://airflow:airflow@postgres:5432/airflow
-      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql://airflow:airflow@postgres:5432/airflow
       AIRFLOW__CORE__LOAD_EXAMPLES: 'false'
+      AIRFLOW__CORE__ENABLE_XCOM_PICKLING: 'true'
+      AIRFLOW__CELERY__BROKER_URL: amqp://${RABBITMQ_DEFAULT_USER:-guest}:${RABBITMQ_DEFAULT_PASS:-guest}@rabbitmq:5672//
+      AIRFLOW__CELERY__RESULT_BACKEND: db+postgresql://${POSTGRES_USER:-airflow}:${POSTGRES_PASSWORD:-airflow}@postgres:5432/${POSTGRES_DB:-airflow}
+      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql://${POSTGRES_USER:-airflow}:${POSTGRES_PASSWORD:-airflow}@postgres:5432/${POSTGRES_DB:-airflow}
     ports:
       - "8080:8080"
     depends_on:
@@ -64,23 +59,33 @@ services:
     volumes:
       - ./airflow/dags:/opt/airflow/dags
       - ./airflow/logs:/opt/airflow/logs
+      - ./airflow/config:/opt/airflow/config
     command: >
-      bash -c "sleep 10 && airflow db init && airflow webserver"
+      bash -c "
+      airflow db upgrade &&
+      airflow users create --username admin --firstname Admin --lastname User --role Admin --email admin@example.com --password admin 2>/dev/null || true &&
+      airflow webserver
+      "
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
       interval: 30s
       timeout: 10s
       retries: 3
+      start_period: 60s
+    networks:
+      - data-platform
 
   airflow-scheduler:
-    image: apache/airflow:2.7.3
+    image: apache/airflow:2.7.3-python3.11
+    user: root
     environment:
       AIRFLOW__CORE__DAGS_FOLDER: /opt/airflow/dags
       AIRFLOW__CORE__EXECUTOR: CeleryExecutor
-      AIRFLOW__CELERY__BROKER_URL: amqp://guest:guest@rabbitmq:5672//
-      AIRFLOW__CELERY__RESULT_BACKEND: db+postgresql://airflow:airflow@postgres:5432/airflow
-      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql://airflow:airflow@postgres:5432/airflow
       AIRFLOW__CORE__LOAD_EXAMPLES: 'false'
+      AIRFLOW__CORE__ENABLE_XCOM_PICKLING: 'true'
+      AIRFLOW__CELERY__BROKER_URL: amqp://${RABBITMQ_DEFAULT_USER:-guest}:${RABBITMQ_DEFAULT_PASS:-guest}@rabbitmq:5672//
+      AIRFLOW__CELERY__RESULT_BACKEND: db+postgresql://${POSTGRES_USER:-airflow}:${POSTGRES_PASSWORD:-airflow}@postgres:5432/${POSTGRES_DB:-airflow}
+      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql://${POSTGRES_USER:-airflow}:${POSTGRES_PASSWORD:-airflow}@postgres:5432/${POSTGRES_DB:-airflow}
     depends_on:
       postgres:
         condition: service_healthy
@@ -89,18 +94,23 @@ services:
     volumes:
       - ./airflow/dags:/opt/airflow/dags
       - ./airflow/logs:/opt/airflow/logs
+      - ./airflow/config:/opt/airflow/config
     command: >
-      bash -c "sleep 10 && airflow scheduler"
+      bash -c "airflow scheduler"
+    networks:
+      - data-platform
 
   airflow-worker:
-    image: apache/airflow:2.7.3
+    image: apache/airflow:2.7.3-python3.11
+    user: root
     environment:
       AIRFLOW__CORE__DAGS_FOLDER: /opt/airflow/dags
       AIRFLOW__CORE__EXECUTOR: CeleryExecutor
-      AIRFLOW__CELERY__BROKER_URL: amqp://guest:guest@rabbitmq:5672//
-      AIRFLOW__CELERY__RESULT_BACKEND: db+postgresql://airflow:airflow@postgres:5432/airflow
-      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql://airflow:airflow@postgres:5432/airflow
       AIRFLOW__CORE__LOAD_EXAMPLES: 'false'
+      AIRFLOW__CORE__ENABLE_XCOM_PICKLING: 'true'
+      AIRFLOW__CELERY__BROKER_URL: amqp://${RABBITMQ_DEFAULT_USER:-guest}:${RABBITMQ_DEFAULT_PASS:-guest}@rabbitmq:5672//
+      AIRFLOW__CELERY__RESULT_BACKEND: db+postgresql://${POSTGRES_USER:-airflow}:${POSTGRES_PASSWORD:-airflow}@postgres:5432/${POSTGRES_DB:-airflow}
+      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql://${POSTGRES_USER:-airflow}:${POSTGRES_PASSWORD:-airflow}@postgres:5432/${POSTGRES_DB:-airflow}
     depends_on:
       postgres:
         condition: service_healthy
@@ -109,8 +119,11 @@ services:
     volumes:
       - ./airflow/dags:/opt/airflow/dags
       - ./airflow/logs:/opt/airflow/logs
+      - ./airflow/config:/opt/airflow/config
     command: >
-      bash -c "sleep 10 && airflow celery worker"
+      bash -c "airflow celery worker --loglevel=info"
+    networks:
+      - data-platform
 
   watchdog:
     build:
@@ -127,6 +140,13 @@ services:
       REJECTED_FOLDER: /app/data/rejected
       ARCHIVE_FOLDER: /app/data/archive
     command: python /app/watchdog/main.py
+    networks:
+      - data-platform
 
 volumes:
   postgres_data:
+    driver: local
+
+networks:
+  data-platform:
+    driver: bridge
