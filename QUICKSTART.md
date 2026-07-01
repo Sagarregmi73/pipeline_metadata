@@ -8,13 +8,26 @@ git clone https://github.com/Sagarregmi73/pipeline_metadata.git
 cd enterprise-data-platform
 ```
 
-### 2️⃣ **Create Configuration**
-```bash
-cp .env.example .env
-```
-This creates your personal `.env` file (NOT committed to GitHub).
+### 2️⃣ **Start Services**
 
-### 3️⃣ **Start Services**
+The startup script automatically creates `.env` from `.env.example`:
+
+**Windows:**
+```bash
+start.bat      # Auto-creates .env, then starts Docker
+```
+
+**Linux/Mac:**
+```bash
+chmod +x start.sh
+./start.sh     # Auto-creates .env, then starts Docker
+```
+
+Your directory will look like:
+```
+✅ .env.example    (always here - on GitHub)
+✅ .env            (created by startup script - git ignored)
+```
 
 **Windows:**
 ```bash

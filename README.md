@@ -11,20 +11,23 @@
 
 ### Option 1: Windows (Batch Script)
 ```bash
-cp .env.example .env
 start.bat
+# Automatically creates .env and starts services
 ```
 
 ### Option 2: Linux/Mac (Shell Script)
 ```bash
-cp .env.example .env
 chmod +x start.sh
 ./start.sh
+# Automatically creates .env and starts services
 ```
 
 ### Option 3: Manual Start
 ```bash
-# Create .env from template
+# The startup script handles this automatically
+# But if you want to do it manually:
+
+# Copy template to .env
 cp .env.example .env
 
 # Create directories
