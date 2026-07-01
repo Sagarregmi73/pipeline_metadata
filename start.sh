@@ -1,6 +1,12 @@
 #!/bin/bash
 set -e
 
+# Create .env from template if it doesn't exist
+if [ ! -f .env ]; then
+    echo "Creating .env from .env.example..."
+    cp .env.example .env
+fi
+
 # Create necessary directories if they don't exist
 mkdir -p airflow/dags
 mkdir -p airflow/logs

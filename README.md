@@ -11,17 +11,22 @@
 
 ### Option 1: Windows (Batch Script)
 ```bash
+cp .env.example .env
 start.bat
 ```
 
 ### Option 2: Linux/Mac (Shell Script)
 ```bash
+cp .env.example .env
 chmod +x start.sh
 ./start.sh
 ```
 
 ### Option 3: Manual Start
 ```bash
+# Create .env from template
+cp .env.example .env
+
 # Create directories
 mkdir -p airflow/{dags,logs,config}
 mkdir -p data/{incoming,archive,rejected}

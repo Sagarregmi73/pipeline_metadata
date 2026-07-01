@@ -1,4 +1,10 @@
 @echo off
+REM Create .env from template if it doesn't exist
+if not exist .env (
+    echo Creating .env from .env.example...
+    copy .env.example .env
+)
+
 REM Create necessary directories if they don't exist
 mkdir airflow\dags 2>nul
 mkdir airflow\logs 2>nul

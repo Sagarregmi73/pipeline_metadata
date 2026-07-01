@@ -12,6 +12,7 @@ cd enterprise-data-platform
 ```bash
 cp .env.example .env
 ```
+This creates your personal `.env` file (NOT committed to GitHub).
 
 ### 3️⃣ **Start Services**
 

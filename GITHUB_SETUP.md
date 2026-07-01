@@ -39,17 +39,11 @@ cd enterprise-data-platform
 
 ### Step 2: Create Environment File
 ```bash
-# Copy .env template if you need different settings
-cp .env.example .env  # if it exists
+# Create .env from the example template
+cp .env.example .env
 
-# Or create from scratch
-cat > .env << EOF
-POSTGRES_USER=airflow
-POSTGRES_PASSWORD=airflow
-POSTGRES_DB=airflow
-RABBITMQ_DEFAULT_USER=guest
-RABBITMQ_DEFAULT_PASS=guest
-EOF
+# Edit .env with your values if needed (optional for local testing)
+# But DO NOT commit this file
 ```
 
 ### Step 3: Start Services
