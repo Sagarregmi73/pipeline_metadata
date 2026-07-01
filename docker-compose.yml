@@ -8,7 +8,7 @@ services:
       POSTGRES_PASSWORD: airflow
       POSTGRES_DB: airflow
     ports:
-      - "5433:5432"  # Changed host port to 5433 to avoid local machine conflicts!
+      - "5433:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
@@ -31,7 +31,6 @@ services:
       timeout: 5s
       retries: 5
 
-  # New one-time initialization container to prevent database race conditions
   airflow-init:
     image: apache/airflow:2.7.3
     environment:
@@ -82,7 +81,6 @@ services:
       - ./airflow/logs:/opt/airflow/logs
     command: airflow scheduler
 
-  # Added Celery Worker so your tasks actually execute
   airflow-worker:
     image: apache/airflow:2.7.3
     environment:
