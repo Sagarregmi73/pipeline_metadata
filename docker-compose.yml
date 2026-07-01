@@ -37,7 +37,7 @@ services:
 
   airflow-webserver:
     image: apache/airflow:2.7.3-python3.11
-    user: "50000:0"
+    user: "root"
     environment:
       AIRFLOW__CORE__DAGS_FOLDER: /opt/airflow/dags
       AIRFLOW__CORE__EXECUTOR: CeleryExecutor
